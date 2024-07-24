@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from . import scheduler
 import json
 
@@ -16,15 +16,40 @@ def create_app():
             mimetype='application/json'
         )
 
+    def define_error(message, status=400):
+        return app.response_class(
+            response=json.dumps({"status": "error", "message": message}),
+            status=status,
+            mimetype='application/json'
+        )
+
     @app.route('/source')
     def source():
-        data = {"source": cfg["node_list"]}
+        data = {"source": cfg["source_url"]}
         return define_response(data)
 
-    @app.route('/list')
-    def list():
+    @app.route('/nodes')
+    def nodes():
         data = {"nodes": cfg["nodes"]}
         return define_response(data)
+
+    @app.route('/node/<ip>', methods=['GET', 'DELETE'])
+    def node(ip=None):
+        if not ip:
+            return define_error("IP not provided", 400)
+
+        if request.method == 'GET':
+            return define_response({"tor": ip in cfg["nodes"]})
+
+        if request.method == 'DELETE':
+            if ip in cfg["nodes"]:
+                cfg["nodes"].remove(ip)
+                # TODO: need to maintain deletion list and reload in scheduler
+                return define_response({"status": "success"})
+
+            else:
+                return define_error("Node not found", 404)
+
 
     scheduler.start_scheduler(app)
 

@@ -10,9 +10,9 @@ def app_context():
     with app.app_context():
         yield
 
-def schedule_download(node_list, path, cfg):
+def schedule_download(source_url, path, cfg):
     try:
-        response = requests.get(node_list)
+        response = requests.get(source_url)
         with open(path, "wb") as f:
             f.write(response.content)
 
@@ -28,13 +28,14 @@ def start_scheduler(app):
 
     with app.app_context():
         cfg = app.config["SERVICES"]["tor"]
-        node_list = cfg["node_list"]
+        source_url = cfg["source_url"]
+
         path = os.path.join(app.instance_path, "tor_nodes.txt")
         interval = cfg["refresh_interval"]
 
-        schedule_download(node_list, path, app.config) # initial
+        schedule_download(source_url, path, app.config) # initial
 
         scheduler = BackgroundScheduler()
         scheduler.add_job(schedule_download, "interval", seconds=interval,
-                          args=[node_list, path, cfg])
+                          args=[source_url, path, cfg])
         scheduler.start()

@@ -1,0 +1,19 @@
+APScheduler==3.10.4
+blinker @ file:///home/conda/feedstock_root/build_artifacts/blinker_1715091184126/work
+certifi==2024.7.4
+charset-normalizer==3.3.2
+click @ file:///home/conda/feedstock_root/build_artifacts/click_1692311806742/work
+Flask @ file:///home/conda/feedstock_root/build_artifacts/flask_1712667726126/work
+idna==3.7
+importlib_metadata @ file:///home/conda/feedstock_root/build_artifacts/importlib-metadata_1721773157721/work
+itsdangerous @ file:///home/conda/feedstock_root/build_artifacts/itsdangerous_1713372668944/work
+Jinja2 @ file:///home/conda/feedstock_root/build_artifacts/jinja2_1715127149914/work
+MarkupSafe @ file:///Users/runner/miniforge3/conda-bld/markupsafe_1706899979126/work
+pytz==2024.1
+requests==2.32.3
+six==1.16.0
+toml==0.10.2
+tzlocal==5.2
+urllib3==2.2.2
+Werkzeug @ file:///home/conda/feedstock_root/build_artifacts/werkzeug_1715000201436/work
+zipp @ file:///home/conda/feedstock_root/build_artifacts/zipp_1718013267051/work
