@@ -1,4 +1,5 @@
 from flask import Flask
+from . import scheduler
 
 
 def create_app():
@@ -8,5 +9,7 @@ def create_app():
     @app.route('/source')
     def source():
         return app.config["SERVICES"]["tor"]["node_list"]
+
+    scheduler.start_scheduler(app)
 
     return app
