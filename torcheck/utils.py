@@ -1,11 +1,17 @@
 import json
+import os
 from contextlib import contextmanager
 
+NODE_LIST = "tor_nodes.txt"
+DELETION_FILE = "tor_deletions.txt"
 
 @contextmanager
 def app_context(app):
     with app.app_context():
         yield
+
+def open_delete_file(path):
+    return open(os.path.join(path, DELETION_FILE), "r")
 
 def define_response(app, data):
     return app.response_class(

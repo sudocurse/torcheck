@@ -3,8 +3,8 @@ import os
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from torcheck.database import update_cache, CACHE_FILE
-from torcheck.utils import app_context
+from torcheck.database import update_cache
+from torcheck.utils import app_context, NODE_LIST
 
 
 def schedule_download(source_url, path, app):
@@ -25,18 +25,26 @@ def start_scheduler(app):
         cfg = app.config["SERVICES"]["tor"]
         source_url = cfg["source_url"]
 
-        path = os.path.join(app.instance_path, CACHE_FILE)
+        os.makedirs(app.instance_path, exist_ok=True)
+
+        # make sure delete file exists
+        delete_file = os.path.join(app.instance_path, "tor_deletions.txt")
+        if not os.path.exists(delete_file):
+            with open(delete_file, "a"):
+                pass
+
+        node_list_path = os.path.join(app.instance_path, NODE_LIST)
         interval = cfg["refresh_interval"]
 
         # initially check if we can read file, else download
-        if os.path.exists(path):
-            with open(path, "r") as f:
+        if os.path.exists(node_list_path):
+            with open(node_list_path, "r") as f:
                 nodes = f.readlines()
             update_cache(app, nodes)
         else:
-            schedule_download(source_url, path, app)
+            schedule_download(source_url, node_list_path, app)
 
         scheduler = BackgroundScheduler()
         scheduler.add_job(schedule_download, "interval", seconds=interval,
-                          args=[source_url, path, app])
+                          args=[source_url, node_list_path, app])
         scheduler.start()
