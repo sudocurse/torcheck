@@ -5,6 +5,8 @@ import os
 import requests
 
 
+CACHE_FILE = "tor_nodes.txt"
+
 @contextmanager
 def app_context():
     with app.app_context():
@@ -30,7 +32,7 @@ def start_scheduler(app):
         cfg = app.config["SERVICES"]["tor"]
         source_url = cfg["source_url"]
 
-        path = os.path.join(app.instance_path, "tor_nodes.txt")
+        path = os.path.join(app.instance_path, CACHE_FILE)
         interval = cfg["refresh_interval"]
 
         schedule_download(source_url, path, app.config) # initial
