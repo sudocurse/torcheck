@@ -13,7 +13,7 @@ def match_ip(user_input, addresses: list):
 def update_cache(app, nodes):
     with app_context(app):
         # TODO: only ~6500 lines, if it was significantly more, i'd think about the data structure
-        nodes = [ip_address(n.strip().strip("[]")) for n in nodes if not was_deleted(n, app)]
+        nodes = [ip_address(n.strip().strip("[]")) for n in nodes if n and not was_deleted(n, app)]
         app.config["SERVICES"]["tor"]["nodes"] = nodes
 
 def was_deleted(ip, app):

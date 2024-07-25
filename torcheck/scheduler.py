@@ -1,24 +1,18 @@
 import os
-
 import requests
-from apscheduler.schedulers.background import BackgroundScheduler
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from torcheck.database import update_cache
 from torcheck.utils import app_context, NODE_LIST
 
 
 def schedule_download(source_url, path, app):
-    try:
-        response = requests.get(source_url)
-        with open(path, "wb") as f:
-            f.write(response.content)
+    response = requests.get(source_url)
+    with open(path, "wb") as f:
+        f.write(response.content)
 
-        nodes = response.content.decode("utf-8").split("\r\n")
-        update_cache(app, nodes)
-
-    except Exception as e:
-        raise Exception("Error downloading node list")
-
+    nodes = response.content.decode("utf-8").split("\r\n")
+    update_cache(app, nodes)
 
 def start_scheduler(app):
     with app_context(app):

@@ -3,7 +3,6 @@ FROM python:3.10
 COPY . /app
 
 WORKDIR /app
-RUN pwd
 RUN pip install -r ./requirements.txt
 
 EXPOSE 5000
