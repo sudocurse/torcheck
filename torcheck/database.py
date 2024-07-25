@@ -1,7 +1,9 @@
 from ipaddress import ip_address
 from torcheck.utils import app_context, get_delete_file
 
-def match_ip(user_input, addresses):
+def match_ip(user_input, addresses: list):
+    # if i wanted to scale would rather just typecheck the container eg List[IPv4Address]
+    addresses = [ip_address(ip) for ip in addresses]
     try:
         user_ip = ip_address(user_input.strip("[]").strip())
     except ValueError:
@@ -9,7 +11,6 @@ def match_ip(user_input, addresses):
     return user_ip in addresses
 
 def update_cache(app, nodes):
-    # parse response.content to list and set config["SERVICES"]["tor"]["nodes"]
     with app_context(app):
         # TODO: only ~6500 lines, if it was significantly more, i'd think about the data structure
         nodes = [ip_address(n.strip().strip("[]")) for n in nodes if not was_deleted(n, app)]

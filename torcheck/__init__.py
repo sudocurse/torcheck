@@ -36,7 +36,7 @@ def create_app():
                 return define_error(app, "Error matching IP", 500)
 
         if request.method == 'DELETE':
-            if db.delete_node(ip, cfg["nodes"]):
+            if db.delete_node(ip, app):
                 return define_response(app, {"status": "success"})
             else:
                 return define_error(app, "Node not found", 404)
@@ -50,10 +50,5 @@ def create_app():
             return define_response(app, {"status": "success"})
         else:
             return define_error(app, "Node not found", 404)
-
-    def test_match_ipv6(): #TODO: put this in a proper test file
-        # test with a valid but weirdly formatted ipv6 address
-        test_ipv6 = "2a0b:F4C2:1:0000:00:0::138   "
-        assert db.match_ip(test_ipv6, cfg["nodes"])
 
     return app
