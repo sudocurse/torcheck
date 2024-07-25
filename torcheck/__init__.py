@@ -1,6 +1,8 @@
 from flask import Flask, request
-from . import scheduler
-import json
+
+import torcheck.scheduler as scheduler
+import torcheck.database as db
+from .utils import define_response, define_error
 
 
 def create_app():
@@ -8,47 +10,40 @@ def create_app():
     app.config.from_pyfile("config.py")
     cfg = app.config["SERVICES"]["tor"]
 
-    def define_response(data):
-        return app.response_class(
-            response=json.dumps(data),
-            status=200,
-            mimetype='application/json'
-        )
-
-    def define_error(message, status=400):
-        return app.response_class(
-            response=json.dumps({"status": "error", "message": message}),
-            status=status,
-            mimetype='application/json'
-        )
+    scheduler.start_scheduler(app)
 
     @app.route('/source')
     def source():
         data = {"source": cfg["source_url"]}
-        return define_response(data)
+        return define_response(app, data)
 
     @app.route('/nodes')
     def nodes():
         data = {"nodes": cfg["nodes"]}
-        return define_response(data)
+        return define_response(app, data)
 
     @app.route('/node/<ip>', methods=['GET', 'DELETE'])
     def node(ip=None):
         if not ip:
-            return define_error("IP not provided", 400)
+            return define_error(app, "IP not provided", 400)
 
         if request.method == 'GET':
-            return define_response({"tor": ip in cfg["nodes"]})
+            try:
+                return define_response(app, {
+                    "tor": db.match_ip(ip, cfg["nodes"])
+                })
+            except Exception as e:
+                return define_error(app, "Error matching IP", 500)
 
         if request.method == 'DELETE':
-            if ip in cfg["nodes"]:
-                cfg["nodes"].remove(ip)
-                scheduler.delete_from_cache(ip)
-                return define_response({"status": "success"})
-
+            if db.delete_node(ip, cfg["nodes"]):
+                return define_response(app, {"status": "success"})
             else:
-                return define_error("Node not found", 404)
+                return define_error(app, "Node not found", 404)
 
-    scheduler.start_scheduler(app)
+    def test_match_ipv6(): #TODO: put this in a proper test file
+        # test with a valid but weirdly formatted ipv6 address
+        test_ipv6 = "2a0b:F4C2:1:0000:00:0::138   "
+        assert db.match_ip(test_ipv6, cfg["nodes"])
 
     return app
