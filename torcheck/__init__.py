@@ -3,7 +3,6 @@ from . import scheduler
 import json
 
 
-
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile("config.py")
@@ -44,12 +43,11 @@ def create_app():
         if request.method == 'DELETE':
             if ip in cfg["nodes"]:
                 cfg["nodes"].remove(ip)
-                # TODO: need to maintain deletion list and reload in scheduler
+                scheduler.delete_from_cache(ip)
                 return define_response({"status": "success"})
 
             else:
                 return define_error("Node not found", 404)
-
 
     scheduler.start_scheduler(app)
 
