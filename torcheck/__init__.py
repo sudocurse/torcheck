@@ -19,7 +19,7 @@ def create_app():
 
     @app.route('/nodes')
     def nodes():
-        data = {"nodes": cfg["nodes"]}
+        data = {"nodes": [str(ip) for ip in cfg["nodes"]]}
         return define_response(app, data)
 
     @app.route('/node/<ip>', methods=['GET', 'DELETE'])
@@ -40,6 +40,16 @@ def create_app():
                 return define_response(app, {"status": "success"})
             else:
                 return define_error(app, "Node not found", 404)
+
+    @app.route('/delete/<ip>', methods=['GET']) # convenience route for this assignment
+    def delete(ip=None):
+        if not ip:
+            return define_error(app, "IP not provided", 400)
+
+        if db.delete_node(ip, app):
+            return define_response(app, {"status": "success"})
+        else:
+            return define_error(app, "Node not found", 404)
 
     def test_match_ipv6(): #TODO: put this in a proper test file
         # test with a valid but weirdly formatted ipv6 address

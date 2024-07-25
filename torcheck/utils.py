@@ -10,8 +10,8 @@ def app_context(app):
     with app.app_context():
         yield
 
-def open_delete_file(path):
-    return open(os.path.join(path, DELETION_FILE), "r")
+def get_delete_file(path):
+    return os.path.join(path, DELETION_FILE)
 
 def define_response(app, data):
     return app.response_class(
